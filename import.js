@@ -11,7 +11,16 @@ import yaml from "js-yaml";
 
 import { Client } from "@elastic/elasticsearch";
 const client = new Client({
-    node: "http://localhost:9200"
+    node: "http://localhost:9200",
+    mappings: {
+        properties: {
+            title: "text",
+            tags: "keyword",
+            content: {
+                type: "text"
+            }
+        }
+    }
 })
 await client.indices.delete({ index: "notes", ignore_unavailable: true });
 await client.indices.create({ index: "notes" });
