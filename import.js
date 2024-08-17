@@ -3,21 +3,57 @@ import path from "path";
 import { glob } from "glob";
 import matter from "gray-matter";
 import yaml from "js-yaml";
-
-//client.collections("notes").delete()
-
-//client.collections().create(notesSchema);
-
-
 import { Client } from "@elastic/elasticsearch";
+
 const client = new Client({
     node: "http://localhost:9200",
+    settings: {
+        analysis: {
+            analyzer: {
+                french_analyzer: {
+                    type: "custom",
+                    tokenizer: "standard",
+                    filter: [
+                        "lowercase",
+                        "asciifolding",
+                        "french_elision",
+                        "french_stop",
+                        "french_stemmer"
+                    ],
+                    char_filter: [
+                        "html_strip"
+                    ]
+                }
+            },
+            filter: {
+                french_elision: {
+                    type: "elision",
+                    articles_case: true,
+                    articles: [
+                        "l", "m", "t", "qu", "n", "s", "j", "d", "c", "jusqu", "quoiqu", "lorsqu", "puisqu"
+                    ]
+                },
+                french_stop: {
+                    type: "stop",
+                    stopwords: "_french_"
+                },
+                french_stemmer: {
+                    type: "stemmer",
+                    language: "light_french"
+                }
+            }
+        }
+    },
     mappings: {
         properties: {
-            title: "text",
+            title: {
+                type: "text",
+                analyzer: "french_analyzer"
+            },
             tags: "keyword",
             content: {
-                type: "text"
+                type: "text",
+                analyzer: "french_analyzer"
             }
         }
     }
