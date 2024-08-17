@@ -1,0 +1,16 @@
+{
+  "name": "poc-obsidian-vault-to-elasticsearch",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@elastic/elasticsearch": "8.15.0",
+    "glob": "10.3.12",
+    "gray-matter": "4.0.3",
+    "js-yaml": "4.1.0"
+  }
+}
