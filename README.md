@@ -14,3 +14,7 @@ $ docker compose up -d --wait
 ```sh
 $ ./import.js
 ```
+
+```sh
+$ ./playground.js
+```

@@ -5,12 +5,25 @@ import matter from "gray-matter";
 import yaml from "js-yaml";
 import { Client } from "@elastic/elasticsearch";
 
+import md from "./markdown.js";
+
 const client = new Client({
     node: "http://localhost:9200",
     settings: {
         analysis: {
             analyzer: {
                 french_analyzer: {
+                    type: "custom",
+                    tokenizer: "standard",
+                    filter: [
+                        "lowercase",
+                        "asciifolding",
+                        "french_elision",
+                        "french_stop",
+                        "french_stemmer"
+                    ]
+                },
+                french_html_analyzer: {
                     type: "custom",
                     tokenizer: "standard",
                     filter: [
@@ -54,6 +67,10 @@ const client = new Client({
             content: {
                 type: "text",
                 analyzer: "french_analyzer"
+            },
+            content_html: {
+                type: "text",
+                analyzer: "french_html_analyzer"
             }
         }
     }
@@ -74,7 +91,8 @@ for await (const filename of (await glob("content/**/*.md"))) {
         document: {
             title: data.data?.title || path.basename(filename, path.extname(filename)),
             tags: data.data?.tags || [],
-            content: data.content
+            content: data.content,
+            content_html: md.render(data.content)
         },
     });
 }

@@ -11,6 +11,10 @@
     "@elastic/elasticsearch": "8.15.0",
     "glob": "10.3.12",
     "gray-matter": "4.0.3",
-    "js-yaml": "4.1.0"
+    "js-yaml": "4.1.0",
+    "markdown-it-regexp": "0.4.0",
+    "markdown-it": "14.1.0",
+    "@fedify/markdown-it-hashtag": "0.2.0",
+    "markdown-it-image-lazy-loading": "2.0.1"
   }
 }
