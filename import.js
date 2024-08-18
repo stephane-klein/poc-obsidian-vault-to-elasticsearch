@@ -8,75 +8,81 @@ import { Client } from "@elastic/elasticsearch";
 import md from "./markdown.js";
 
 const client = new Client({
-    node: "http://localhost:9200",
-    settings: {
-        analysis: {
-            analyzer: {
-                french_analyzer: {
-                    type: "custom",
-                    tokenizer: "standard",
-                    filter: [
-                        "lowercase",
-                        "asciifolding",
-                        "french_elision",
-                        "french_stop",
-                        "french_stemmer"
-                    ]
+    node: "http://localhost:9200"
+})
+await client.indices.delete({ index: "notes", ignore_unavailable: true });
+await client.indices.create({
+    index: "notes",
+    body: {
+        settings: {
+            analysis: {
+                analyzer: {
+                    french_analyzer: {
+                        type: "custom",
+                        tokenizer: "standard",
+                        filter: [
+                            "lowercase",
+                            "asciifolding",
+                            "french_elision",
+                            "french_stop",
+                            "french_stemmer"
+                        ]
+                    },
+                    french_html_analyzer: {
+                        type: "custom",
+                        tokenizer: "standard",
+                        filter: [
+                            "lowercase",
+                            "asciifolding",
+                            "french_elision",
+                            "french_stop",
+                            "french_stemmer"
+                        ],
+                        char_filter: [
+                            "html_strip"
+                        ]
+                    }
                 },
-                french_html_analyzer: {
-                    type: "custom",
-                    tokenizer: "standard",
-                    filter: [
-                        "lowercase",
-                        "asciifolding",
-                        "french_elision",
-                        "french_stop",
-                        "french_stemmer"
-                    ],
-                    char_filter: [
-                        "html_strip"
-                    ]
-                }
-            },
-            filter: {
-                french_elision: {
-                    type: "elision",
-                    articles_case: true,
-                    articles: [
-                        "l", "m", "t", "qu", "n", "s", "j", "d", "c", "jusqu", "quoiqu", "lorsqu", "puisqu"
-                    ]
-                },
-                french_stop: {
-                    type: "stop",
-                    stopwords: "_french_"
-                },
-                french_stemmer: {
-                    type: "stemmer",
-                    language: "light_french"
+                filter: {
+                    french_elision: {
+                        type: "elision",
+                        articles_case: true,
+                        articles: [
+                            "l", "m", "t", "qu", "n", "s", "j", "d", "c", "jusqu", "quoiqu", "lorsqu", "puisqu"
+                        ]
+                    },
+                    french_stop: {
+                        type: "stop",
+                        stopwords: "_french_"
+                    },
+                    french_stemmer: {
+                        type: "stemmer",
+                        language: "light_french"
+                    }
                 }
             }
-        }
-    },
-    mappings: {
-        properties: {
-            title: {
-                type: "text",
-                analyzer: "french_analyzer"
-            },
-            tags: "keyword",
-            content: {
-                type: "text",
-                analyzer: "french_analyzer"
-            },
-            content_html: {
-                type: "text",
-                analyzer: "french_html_analyzer"
+        },
+        mappings: {
+            properties: {
+                title: {
+                    type: "text",
+                    analyzer: "french_analyzer"
+                },
+                tags: {
+                    type: "keyword",
+                },
+                content: {
+                    type: "text",
+                    analyzer: "french_analyzer"
+                },
+                content_html: {
+                    type: "text",
+                    analyzer: "french_html_analyzer"
+                }
             }
         }
     }
-})
-await client.indices.delete({ index: "notes", ignore_unavailable: true });
-await client.indices.create({ index: "notes" });
+});
 
 for await (const filename of (await glob("content/**/*.md"))) {
     const data = matter.read(filename, {
